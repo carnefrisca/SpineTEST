@@ -53,24 +53,24 @@ namespace SpineTEST
             skeletonRenderer = new SkeletonMeshRenderer(GraphicsDevice);
             skeletonRenderer.PremultipliedAlpha = true;
             
-            String name = "anim_dude01";
-            Texture2D texture = Content.Load<Texture2D>("anim_dude01");
+            String name = "spineboy";
+            Texture2D texture = Content.Load<Texture2D>("spineboy");
 
             AtlasPage atlasPage = new AtlasPage();
             atlasPage.rendererObject = texture;
             atlasPage.width = texture.Width;
             atlasPage.height = texture.Height;
-            Atlas atlas = new Atlas(@"Content\" + name + ".atlas", new XnaTextureLoader(GraphicsDevice,texture));
+            Atlas atlas = new Atlas(@"Content\spineboy\export\" + name + ".atlas", new XnaTextureLoader(GraphicsDevice,texture));
             
             SkeletonJson json = new SkeletonJson(atlas);
-            json.Scale = 1.0f;
-            
-            skeleton = new Skeleton(json.ReadSkeletonData(@"Content\" + name + ".json"));
+            json.Scale = 0.6f;
+
+            skeleton = new Skeleton(json.ReadSkeletonData(@"Content\spineboy\export\" + name + ".json"));
             skeleton.SetSkin("default");
 
             AnimationStateData stateData = new AnimationStateData(skeleton.Data);
             state = new AnimationState(stateData);
-            state.SetAnimation(0, "anim_dude01_idle", true);          
+            state.SetAnimation(0, "idle", true);          
         }
 
         /// <summary>
@@ -79,7 +79,8 @@ namespace SpineTEST
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            skeletonRenderer.Dispose();
+            this.Exit();
         }
 
         /// <summary>
@@ -92,6 +93,9 @@ namespace SpineTEST
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                state.SetAnimation(0, "run", true);
+
             base.Update(gameTime);
         }
 
@@ -102,12 +106,11 @@ namespace SpineTEST
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            state.Apply(skeleton);
-            state.Update(gameTime.ElapsedGameTime.Milliseconds / 1000f);
-            
             skeleton.X = 400.0f;
-            skeleton.Y = 300.0f;
+            skeleton.Y = 400.0f;
 
+            state.Update(gameTime.ElapsedGameTime.Milliseconds / 1000f);
+            state.Apply(skeleton);
             skeleton.UpdateWorldTransform();
             skeletonRenderer.Begin();
             skeletonRenderer.Draw(skeleton);

@@ -5,8 +5,10 @@ using Microsoft.Xna.Framework;
 
 namespace Spine
 {
-    public class SkeletonMeshRenderer
+    public class SkeletonMeshRenderer : IDisposable
     {
+        bool disposed = false;
+
         private const int TL = 0;
         private const int TR = 1;
         private const int BL = 2;
@@ -220,6 +222,29 @@ namespace Spine
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                device.Dispose();
+                rasterizerState.Dispose();
+                defaultBlendState.Dispose();
+                Effect.Dispose();
+                effect.Dispose();
+            }
+
+            disposed = true;
         }
     }
 }
